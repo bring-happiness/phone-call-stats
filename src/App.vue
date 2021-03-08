@@ -15,7 +15,10 @@
 
     <h1>
       Nombre total d'appels aujourd'hui :
-      {{ total }}
+
+      <div style="font-size: 3.5rem; text-decoration: underline">
+        {{ total }}
+      </div>
     </h1>
 
     <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
@@ -57,8 +60,17 @@
     <button
       v-if="!showForSharing"
       @click="toggleChart"
+      style="margin-right: 40px"
     >
       AFFICHER LE GRAPHIQUE
+    </button>
+
+    <button
+      v-if="!showForSharing"
+      @click="resetStats"
+      style="background: red; color: white;"
+    >
+      RÉINITIALISER LES STATS
     </button>
 
     <div class="margin: auto; width: 100%;">
@@ -84,6 +96,14 @@ export default {
     Pie,
   },
 
+  created() {
+    const stats = window.localStorage.getItem('stats');
+    console.log(stats);
+    if (stats !== null) {
+      this.categories = JSON.parse(stats);
+    }
+  },
+
   data() {
     return {
       showChart: false,
@@ -105,7 +125,7 @@ export default {
           color: '#00D8FF',
         },
         {
-          title: 'Il faut envoyé un email',
+          title: 'Il faut envoyer un email',
           number: 0,
           color: '#bb6ffd',
         },
@@ -138,7 +158,7 @@ export default {
       return {
         hoverBackgroundColor: 'red',
         hoverBorderWidth: 10,
-        labels: ['Intéressé', 'Répondeur', 'À rappeler', 'Pas intéressé', 'Il faut envoyé un email'],
+        labels: ['Intéressé', 'Répondeur', 'À rappeler', 'Pas intéressé', 'Il faut envoyer un email'],
         datasets: [
           {
             label: 'Data One',
@@ -157,7 +177,7 @@ export default {
 
     myStyles() {
       return {
-        width: '500px',
+        width: '400px',
         position: 'relative',
       };
     },
@@ -167,11 +187,17 @@ export default {
     onIncrement(category) {
       // eslint-disable-next-line no-param-reassign
       category.number += 1;
+      this.saveInStorage();
     },
 
     onDecrement(category) {
       // eslint-disable-next-line no-param-reassign
       category.number -= 1;
+      this.saveInStorage();
+    },
+
+    saveInStorage() {
+      window.localStorage.setItem('stats', JSON.stringify(this.categories));
     },
 
     async toggleChart() {
@@ -180,6 +206,13 @@ export default {
       await this.$nextTick();
 
       this.showChart = true;
+    },
+
+    resetStats() {
+      this.categories.forEach((category) => {
+        // eslint-disable-next-line no-param-reassign
+        category.number = 0;
+      });
     },
   },
 };
