@@ -158,7 +158,7 @@ export default {
       return {
         hoverBackgroundColor: 'red',
         hoverBorderWidth: 10,
-        labels: ['Intéressé', 'Répondeur', 'À rappeler', 'Pas intéressé', 'Il faut envoyer un email'],
+        labels: ['Intéressé', 'Répondeur', 'À rappeler', 'Il faut envoyer un email', 'Pas intéressé'],
         datasets: [
           {
             label: 'Data One',
