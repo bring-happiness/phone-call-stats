@@ -3,6 +3,7 @@
 
     <button
       @click="showForSharing = !showForSharing"
+      style="margin-right: 17px;"
     >
       <span v-if="showForSharing">
         Mode édition
@@ -12,6 +13,15 @@
         Mode affichage
       </span>
     </button>
+
+    <button @click="copyPageToClipboard">COPIER</button>
+
+    <div
+      v-if="isCopied"
+      style="color: forestgreen"
+    >
+      Image copiée !
+    </div>
 
     <h1>
       Nombre total d'appels aujourd'hui :
@@ -42,7 +52,8 @@
         >
           <button
             v-if="!showForSharing"
-            @click="onDecrement(category)">-</button>
+            @click="onDecrement(category)">-
+          </button>
 
           <span style="font-size: 2.5rem; margin: 0 7px;">{{ category.number }}</span>
 
@@ -88,6 +99,7 @@
 </template>
 
 <script>
+import { toPng } from 'html-to-image';
 import Pie from './pie.vue';
 
 export default {
@@ -98,7 +110,7 @@ export default {
 
   created() {
     const stats = window.localStorage.getItem('stats');
-    console.log(stats);
+
     if (stats !== null) {
       this.categories = JSON.parse(stats);
     }
@@ -108,6 +120,7 @@ export default {
     return {
       showChart: false,
       showForSharing: false,
+      isCopied: false,
       categories: [
         {
           title: 'Intéressé',
@@ -184,6 +197,47 @@ export default {
   },
 
   methods: {
+    copyPageToClipboard() {
+      const node = document.getElementById('app');
+
+      toPng(node)
+        .then((dataUrl) => {
+          const img = new Image();
+          img.src = dataUrl;
+          img.id = 'screenshot';
+          document.body.appendChild(img);
+
+          const imageElem = document.querySelector('#screenshot');
+          const range = document.createRange();
+          range.selectNode(imageElem);
+          window.getSelection()
+            .addRange(range);
+
+          try {
+            // Now that we've selected the anchor text, execute the copy command
+            const successful = document.execCommand('copy');
+            const msg = successful ? 'successful' : 'unsuccessful';
+            console.log(`Copy image command was ${msg}`);
+          } catch (err) {
+            console.log('Oops, unable to copy');
+          }
+
+          window.getSelection()
+            .removeAllRanges();
+
+          document.body.removeChild(img);
+
+          this.isCopied = true;
+
+          setTimeout(() => {
+            this.isCopied = false;
+          }, 2000);
+        })
+        .catch((error) => {
+          console.error('oops, something went wrong!', error);
+        });
+    },
+
     onIncrement(category) {
       // eslint-disable-next-line no-param-reassign
       category.number += 1;
@@ -221,7 +275,8 @@ export default {
 <style lang="scss">
 
 .cell {
-  border: 1px solid black; width: 20%;
+  border: 1px solid black;
+  width: 20%;
 }
 
 #app {
