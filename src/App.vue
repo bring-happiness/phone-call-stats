@@ -264,6 +264,8 @@ export default {
         // eslint-disable-next-line no-param-reassign
         category.number = 0;
       });
+
+      this.saveInStorage();
     },
   },
 };
