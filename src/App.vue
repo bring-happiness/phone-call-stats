@@ -70,14 +70,6 @@
 
     <button
       v-if="!showForSharing"
-      @click="toggleChart"
-      style="margin-right: 40px"
-    >
-      AFFICHER LE GRAPHIQUE
-    </button>
-
-    <button
-      v-if="!showForSharing"
       @click="resetStats"
       style="background: red; color: white;"
     >
@@ -197,45 +189,50 @@ export default {
   },
 
   methods: {
-    copyPageToClipboard() {
-      const node = document.getElementById('app');
+    async copyPageToClipboard() {
+      this.showForSharing = true;
+      await this.toggleChart();
 
-      toPng(node)
-        .then((dataUrl) => {
-          const img = new Image();
-          img.src = dataUrl;
-          img.id = 'screenshot';
-          document.body.appendChild(img);
+      setTimeout(() => {
+        const node = document.getElementById('app');
 
-          const imageElem = document.querySelector('#screenshot');
-          const range = document.createRange();
-          range.selectNode(imageElem);
-          window.getSelection()
-            .addRange(range);
+        toPng(node)
+          .then((dataUrl) => {
+            const img = new Image();
+            img.src = dataUrl;
+            img.id = 'screenshot';
+            document.body.appendChild(img);
 
-          try {
-            // Now that we've selected the anchor text, execute the copy command
-            const successful = document.execCommand('copy');
-            const msg = successful ? 'successful' : 'unsuccessful';
-            console.log(`Copy image command was ${msg}`);
-          } catch (err) {
-            console.log('Oops, unable to copy');
-          }
+            const imageElem = document.querySelector('#screenshot');
+            const range = document.createRange();
+            range.selectNode(imageElem);
+            window.getSelection()
+              .addRange(range);
 
-          window.getSelection()
-            .removeAllRanges();
+            try {
+              // Now that we've selected the anchor text, execute the copy command
+              const successful = document.execCommand('copy');
+              const msg = successful ? 'successful' : 'unsuccessful';
+              console.log(`Copy image command was ${msg}`);
+            } catch (err) {
+              console.log('Oops, unable to copy');
+            }
 
-          document.body.removeChild(img);
+            window.getSelection()
+              .removeAllRanges();
 
-          this.isCopied = true;
+            document.body.removeChild(img);
 
-          setTimeout(() => {
-            this.isCopied = false;
-          }, 2000);
-        })
-        .catch((error) => {
-          console.error('oops, something went wrong!', error);
-        });
+            this.isCopied = true;
+
+            setTimeout(() => {
+              this.isCopied = false;
+            }, 2000);
+          })
+          .catch((error) => {
+            console.error('oops, something went wrong!', error);
+          });
+      }, 1000);
     },
 
     onIncrement(category) {
